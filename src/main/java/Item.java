@@ -1,6 +1,5 @@
-@Entity @Table( name="inventory")
 public class Item {
-    @Id private int UPC;
+    private int UPC;
     private String Name;
 
     //default constructor
@@ -15,7 +14,7 @@ public class Item {
 
     //getter and setter methods
     public int getUPC() {
-        return UPC
+        return UPC;
     }
 
     public void setUPC(int UPC) {
@@ -34,10 +33,10 @@ public class Item {
     public static void add() {
     }
 
-    public static List<Item> retrieveAll() {
-    }
+    //public static List<Item> retrieveAll() {
+    //}
 
-    public static Item retrieve() {}
+    //public static Item retrieve() {}
 
     public static void update() {}
 
