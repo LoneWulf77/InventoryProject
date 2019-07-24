@@ -79,8 +79,8 @@
           <database value="mysql" />
           <os-authentication value="false" />
           <empty-authentication value="false" />
-          <user value="root" />
-          <deprecated-pwd value="cm9vdA==" />
+          <user value="code" />
+          <deprecated-pwd value="Y29kZQ==" />
         </database>
         <properties>
           <auto-commit value="false" />

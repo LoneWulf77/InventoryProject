@@ -17,8 +17,11 @@ public class testing {
             addDataToDB( 987654321,"Item 2", 1);
             addDataToDB( 123454321,"Item 3", 1);
 
-            log("\n------ Get Data from DB -----");
+            log("\n------ Get Data from DB ------");
             getDataFromDB();
+
+            log("\n------ Remove Data from DB ------");
+            removeDataFromDB();
 
             myPreparedStat.close();
             myConnect.close();
@@ -44,7 +47,7 @@ public class testing {
 
         try{
             //DriverManager: basic service for managing a set of JDBC drivers.
-            myConnect = DriverManager.getConnection("jdbc:mysql://localhost:3306/mysql", "root@localhost", "root");
+            myConnect = DriverManager.getConnection("jdbc:mysql://localhost:3306/inventory?useSSL=false", "code", "code");
             if (myConnect != null) {
                 log("Connection Successful.");
             } else{
@@ -99,6 +102,19 @@ public class testing {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    private static void removeDataFromDB() {
+        try{
+                String getQueryStatement = "DELETE FROM invlist WHERE amount=1";
+
+                myPreparedStat = myConnect.prepareStatement(getQueryStatement);
+
+                myPreparedStat.executeUpdate();
+
+            } catch (SQLException e){
+                e.printStackTrace();
+            }
     }
 
     //log utility
