@@ -13,15 +13,19 @@ public class testing {
             makeJDBCConnection();
 
             log("\n------ Adding data to DB ------");
+
             addDataToDB( 123456789,"Item 1", 1);
             addDataToDB( 987654321,"Item 2", 1);
             addDataToDB( 123454321,"Item 3", 1);
 
             log("\n------ Get Data from DB ------");
+            log("\n    UPC     Name   Amount");
             getDataFromDB();
 
             log("\n------ Remove Data from DB ------");
-            removeDataFromDB();
+            removeDataFromDB(123456789);
+            removeDataFromDB(987654321);
+            removeDataFromDB(123454321);
 
             myPreparedStat.close();
             myConnect.close();
@@ -104,13 +108,14 @@ public class testing {
         }
     }
 
-    private static void removeDataFromDB() {
+    private static void removeDataFromDB(int upc) {
         try{
-                String getQueryStatement = "DELETE FROM invlist WHERE amount=1";
+                String getQueryStatement = "DELETE FROM invlist WHERE UPC=" + upc;
 
                 myPreparedStat = myConnect.prepareStatement(getQueryStatement);
 
                 myPreparedStat.executeUpdate();
+            log(upc + " removed successfully.");
 
             } catch (SQLException e){
                 e.printStackTrace();
@@ -121,4 +126,24 @@ public class testing {
     private static void log(String string) {
         System.out.println(string);
     }
+
+    /* while "things to add"
+    ask for upc (int)
+    ask for name (string)
+    ask for amount (int)
+
+    addDataToDB();
+
+    ask if more items (y/n)
+     */
+
+    /* while "things to add"
+    ask for upc (int)
+    ask for name (string)
+    ask for amount (int)
+
+    ask if more items (y/n)
+
+    add all items to DB at once
+     */
 }
