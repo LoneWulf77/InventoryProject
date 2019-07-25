@@ -9,12 +9,9 @@ public class InventoryTesting {
     static Connection myConnect = null;
     static PreparedStatement myPreparedStat = null;
 
-    static ArrayList<String> inputArray = new ArrayList<String>(Arrays.asList("1","test1","2","11","test 2","3"));
+    static ArrayList<String> inputArray = new ArrayList<String>();
 
     public static void main(String[] args){
-
-        //ask user for items to add
-        //addInput();
 
         try {
             log("------ Tut on making JDBC connection to MySQL DB ------");
@@ -30,14 +27,19 @@ public class InventoryTesting {
                     addDataToDB(inputArray=addInput());
                 }
 
-                else if(task.equals("delete")){
-                    log("\n------ Remove Data from DB ------");
-                    removeDataFromDB(inputArray=removeInput());
+                else if(task.equals("remove")||task.equals("remove amount")){
+                    log("\n------ Remove amount from DB ------");
+                    removeAmountFromDB(inputArray=removeInput());
+                }
+
+                else if(task.equals("delete")||task.equals("delete upc")){
+                    log("\n------ Delete Data(by UPC) from DB ------");
+                    removeUPCFromDB(inputArray=removeUPCInput());
                 }
 
                 else if(task.equals("view")){
                     log("\n------ Get Data from DB ------");
-                    log("\nUPC  Name  Amount");
+                    log("UPC  Name  Amount");
                     getDataFromDB();
                 }
 
@@ -104,6 +106,11 @@ public class InventoryTesting {
             myPreparedStat = myConnect.prepareStatement(insertQueryStatement);
 
             for (int i=0; i+2<inputArray.size(); i=i+3) {
+
+                //check if current item already exist
+                //if exists, update amount by +inputArray.get(i+2)
+                //skip current iteration of for loop
+
                 myPreparedStat.setInt(1, Integer.parseInt(inputArray.get(i)));
                 myPreparedStat.setString(2, inputArray.get(i+1));
                 myPreparedStat.setInt(3, Integer.parseInt(inputArray.get(i+2)));
@@ -146,7 +153,28 @@ public class InventoryTesting {
         }
     }
 
-    private static void removeDataFromDB(ArrayList<String> inputArray) {
+    private static void removeAmountFromDB(ArrayList<String> inputArray) {
+        try{
+            String getQueryStatement = "DELETE FROM invlist WHERE UPC=(?)";
+            myPreparedStat = myConnect.prepareStatement(getQueryStatement);
+
+            for (int i=0; i+1<inputArray.size(); i++) {
+                myPreparedStat.setInt(1, Integer.parseInt(inputArray.get(i)));
+
+                //add to batch
+                myPreparedStat.addBatch();
+                log(inputArray.get(i) + " added to batch successfully.");
+            }
+
+            int[] inserted = myPreparedStat.executeBatch();
+            log("Batch executed. "+ inserted.length + " records removed from database.");
+
+        } catch (SQLException e){
+            e.printStackTrace();
+        }
+    }
+
+    private static void removeUPCFromDB(ArrayList<String> inputArray) {
         try{
             String getQueryStatement = "DELETE FROM invlist WHERE UPC=(?)";
             myPreparedStat = myConnect.prepareStatement(getQueryStatement);
@@ -174,15 +202,14 @@ public class InventoryTesting {
 
     private static String userInput(){
         Scanner s = new Scanner(System.in);
-        System.out.println("What would you like to do? Add/Delete/View/Exit");
+        System.out.println("What would you like to do? Add/Remove Amount/Delete UPC/View/Exit");
         return s.nextLine().toLowerCase();
     }
 
     private static ArrayList<String> addInput(){
         Scanner s = new Scanner(System.in);
-        boolean moreItems=true;
 
-        for (int i=0; moreItems; i++) {
+        while (true){
             System.out.println("Enter UPC:");
             inputArray.add(String.valueOf(s.nextInt()));
             s.nextLine();
@@ -194,7 +221,7 @@ public class InventoryTesting {
 
             System.out.println("Do you have more items to add? y/n");
             if("n".equals(s.nextLine())){
-                moreItems=false;
+                break;
             }
         }
 
@@ -203,15 +230,35 @@ public class InventoryTesting {
 
     private static ArrayList<String> removeInput(){
         Scanner s = new Scanner(System.in);
-        boolean moreItems=true;
 
-        for (int i=0; moreItems; i++){
+        while (true){
             System.out.println("Enter UPC:");
-            inputArray.add(s.nextLine());
+            inputArray.add(String.valueOf(s.nextInt()));
+            s.nextLine();
+            System.out.println("Enter amount:");
+            inputArray.add(String.valueOf(s.nextInt()));
+            s.nextLine();
 
             System.out.println("Do you have more items to remove? y/n");
             if("n".equals(s.nextLine())){
-                moreItems=false;
+                break;
+            }
+        }
+
+        return inputArray;
+    }
+
+    private static ArrayList<String> removeUPCInput(){
+        Scanner s = new Scanner(System.in);
+
+        while (true){
+            System.out.println("Enter UPC:");
+            inputArray.add(String.valueOf(s.nextInt()));
+            s.nextLine();
+
+            System.out.println("Do you have more items to remove? y/n");
+            if("n".equals(s.nextLine())){
+                break;
             }
         }
 
