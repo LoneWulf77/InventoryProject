@@ -1,5 +1,6 @@
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Scanner;
 
 
@@ -8,31 +9,50 @@ public class InventoryTesting {
     static Connection myConnect = null;
     static PreparedStatement myPreparedStat = null;
 
-    static ArrayList<String> inputArray = new ArrayList<String>();
+    static ArrayList<String> inputArray = new ArrayList<String>(Arrays.asList("1","test1","2","11","test 2","3"));
 
     public static void main(String[] args){
-        
+
         //ask user for items to add
-        userInput();
+        //addInput();
 
         try {
             log("------ Tut on making JDBC connection to MySQL DB ------");
             makeJDBCConnection();
 
-            log("\n------ Adding data to DB ------");
+            while (true){
+                String task = userInput();
+                inputArray.clear();
 
-            addDataToDB(inputArray);
-            //addDataToDB( 987654321,"Item 2", 1);
-            //addDataToDB( 123454321,"Item 3", 1);
+                if(task.equals("add")){
+                    log("\n------ Adding data to DB ------");
+                    addDataToDB(inputArray=addInput());
+                }
 
-            log("\n------ Get Data from DB ------");
-            log("\n    UPC     Name   Amount");
-            //getDataFromDB();
+                else if(task.equals("delete")){
+                    log("\n------ Remove Data from DB ------");
+                    removeDataFromDB(inputArray=removeInput());
+                }
 
-            log("\n------ Remove Data from DB ------");
-            //removeDataFromDB(123456789);
-            //removeDataFromDB(987654321);
-            //removeDataFromDB(123454321);
+                else if(task.equals("view")){
+                    log("\n------ Get Data from DB ------");
+                    log("\n    UPC     Name   Amount");
+                    getDataFromDB();
+                }
+
+                else if(task.equals("exit")){
+                    break;
+                }
+
+                else{
+                    System.out.println("Please enter a valid action.");
+                }
+            }
+
+
+
+
+
 
             myPreparedStat.close();
             myConnect.close();
@@ -56,7 +76,7 @@ public class InventoryTesting {
             return;
         }
 
-        /*try{
+        try{
             //DriverManager: basic service for managing a set of JDBC drivers.
             myConnect = DriverManager.getConnection("jdbc:mysql://localhost:3306/inventory?useSSL=false", "code", "code");
             if (myConnect != null) {
@@ -69,7 +89,7 @@ public class InventoryTesting {
             log("MySQL Connection Failed");
             e.printStackTrace();
             return;
-        }*/
+        }
     }
 
     private static void addDataToDB(ArrayList<String> inputArray) {
@@ -78,37 +98,26 @@ public class InventoryTesting {
         //https://stackoverflow.com/questions/4355046/java-insert-multiple-rows-into-mysql-with-preparedstatement
         //https://stackoverflow.com/questions/12012592/jdbc-insert-multiple-rows
 
-        /*try {
+        try {
             String insertQueryStatement = "INSERT INTO invlist VALUES (?,?,?)";
 
-
-            for (int i=0; i+2<inputArray.length; i=i+3) {
+            for (int i=0; i+2<inputArray.size(); i=i+3) {
                 myPreparedStat = myConnect.prepareStatement(insertQueryStatement);
-                myPreparedStat.setInt(i+1, Integer.parseInt(inputArray[i]));
-                myPreparedStat.setString(i+2, inputArray[i+1]);
-                myPreparedStat.setInt(i+3, Integer.parseInt(inputArray[i+2]));
+                myPreparedStat.setInt(1, Integer.parseInt(inputArray.get(i)));
+                myPreparedStat.setString(2, inputArray.get(i+1));
+                myPreparedStat.setInt(3, Integer.parseInt(inputArray.get(i+2)));
 
-                //execute insert SQL statement
-                myPreparedStat.executeUpdate();
-                log(inputArray[i+1] + " added successfully.");
+                //add to batch
+                myPreparedStat.addBatch();
+                log(inputArray.get(i+1) + " added to batch successfully.");
             }
+
+            int[] inserted = myPreparedStat.executeBatch();
+            log("Batch executed. "+ inserted + " records added to database.");
 
 
         } catch (SQLException e) {
             e.printStackTrace();
-        }*/
-
-        String insertQueryStatement = "INSERT INTO invlist VALUES (?,?,?)";
-
-        for (int i=0; i+2<inputArraysize(); i=i+3) {
-            if (i>0){                                       //doesn't add to string on first run
-                insertQueryStatement = insertQueryStatement.concat(", (?,?,?)");
-            }
-
-            //myPreparedStat setup goes here, same as above
-            System.out.println(insertQueryStatement);
-
-            log(inputArray.get(i+1) + " added successfully.");
         }
     }
 
@@ -136,14 +145,21 @@ public class InventoryTesting {
         }
     }
 
-    private static void removeDataFromDB(int upc) {
+    private static void removeDataFromDB(ArrayList<String> inputArray) {
         try{
-            String getQueryStatement = "DELETE FROM invlist WHERE UPC=" + upc;
+            String getQueryStatement = "DELETE FROM invlist WHERE UPC=(?)";
 
-            myPreparedStat = myConnect.prepareStatement(getQueryStatement);
+            for (int i=0; i+1<inputArray.size(); i++) {
+                myPreparedStat = myConnect.prepareStatement(getQueryStatement);
+                myPreparedStat.setInt(1, Integer.parseInt(inputArray.get(i)));
 
-            myPreparedStat.executeUpdate();
-            log(upc + " removed successfully.");
+                //add to batch
+                myPreparedStat.addBatch();
+                log(inputArray.get(i) + " added to batch successfully.");
+            }
+
+            int[] inserted = myPreparedStat.executeBatch();
+            log("Batch executed. "+ inserted + " records added to database.");
 
         } catch (SQLException e){
             e.printStackTrace();
@@ -155,27 +171,17 @@ public class InventoryTesting {
         System.out.println(string);
     }
 
-    /* while "things to add"
-    ask for upc (int)
-    ask for name (string)
-    ask for amount (int)
-    addDataToDB();
-    ask if more items (y/n)
-     */
+    private static String userInput(){
+        Scanner s = new Scanner(System.in);
+        System.out.println("What would you like to do? Add/Delete/View/Exit");
+        return s.nextLine().toLowerCase();
+    }
 
-    /* while "things to add"
-    ask for upc (int)
-    ask for name (string)
-    ask for amount (int)
-    ask if more items (y/n)
-    add all items to DB at once
-     */
-    
-    private static ArrayList<String> userInput(){
+    private static ArrayList<String> addInput(){
         Scanner s = new Scanner(System.in);
         boolean moreItems=true;
 
-        for (int i=0; moreItems; i=i+3) {
+        for (int i=0; moreItems; i++) {
             System.out.println("Enter UPC:");
             inputArray.add(String.valueOf(s.nextInt()));
             s.nextLine();
@@ -186,6 +192,23 @@ public class InventoryTesting {
             s.nextLine();
 
             System.out.println("Do you have more items to add? y/n");
+            if("n".equals(s.nextLine())){
+                moreItems=false;
+            }
+        }
+
+        return inputArray;
+    }
+
+    private static ArrayList<String> removeInput(){
+        Scanner s = new Scanner(System.in);
+        boolean moreItems=true;
+
+        for (int i=0; moreItems; i++){
+            System.out.println("Enter UPC:");
+            inputArray.add(s.nextLine());
+
+            System.out.println("Do you have more items to remove? y/n");
             if("n".equals(s.nextLine())){
                 moreItems=false;
             }
