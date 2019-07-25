@@ -21,6 +21,7 @@ public class InventoryTesting {
             makeJDBCConnection();
 
             while (true){
+                System.out.println();
                 String task = userInput();
                 inputArray.clear();
 
@@ -36,7 +37,7 @@ public class InventoryTesting {
 
                 else if(task.equals("view")){
                     log("\n------ Get Data from DB ------");
-                    log("\n    UPC     Name   Amount");
+                    log("\nUPC  Name  Amount");
                     getDataFromDB();
                 }
 
@@ -100,9 +101,9 @@ public class InventoryTesting {
 
         try {
             String insertQueryStatement = "INSERT INTO invlist VALUES (?,?,?)";
+            myPreparedStat = myConnect.prepareStatement(insertQueryStatement);
 
             for (int i=0; i+2<inputArray.size(); i=i+3) {
-                myPreparedStat = myConnect.prepareStatement(insertQueryStatement);
                 myPreparedStat.setInt(1, Integer.parseInt(inputArray.get(i)));
                 myPreparedStat.setString(2, inputArray.get(i+1));
                 myPreparedStat.setInt(3, Integer.parseInt(inputArray.get(i+2)));
@@ -113,7 +114,7 @@ public class InventoryTesting {
             }
 
             int[] inserted = myPreparedStat.executeBatch();
-            log("Batch executed. "+ inserted + " records added to database.");
+            log("Batch executed. "+ inserted.length + " records added to database.");
 
 
         } catch (SQLException e) {
@@ -148,9 +149,9 @@ public class InventoryTesting {
     private static void removeDataFromDB(ArrayList<String> inputArray) {
         try{
             String getQueryStatement = "DELETE FROM invlist WHERE UPC=(?)";
+            myPreparedStat = myConnect.prepareStatement(getQueryStatement);
 
-            for (int i=0; i+1<inputArray.size(); i++) {
-                myPreparedStat = myConnect.prepareStatement(getQueryStatement);
+            for (int i=0; i<inputArray.size(); i++) {
                 myPreparedStat.setInt(1, Integer.parseInt(inputArray.get(i)));
 
                 //add to batch
@@ -159,7 +160,7 @@ public class InventoryTesting {
             }
 
             int[] inserted = myPreparedStat.executeBatch();
-            log("Batch executed. "+ inserted + " records added to database.");
+            log("Batch executed. "+ inserted.length + " records removed from database.");
 
         } catch (SQLException e){
             e.printStackTrace();
