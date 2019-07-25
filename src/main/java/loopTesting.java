@@ -1,4 +1,5 @@
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 
@@ -7,7 +8,7 @@ public class InventoryTesting {
     static Connection myConnect = null;
     static PreparedStatement myPreparedStat = null;
 
-    static String inputArray[] = new String[9];
+    static ArrayList<String> inputArray = new ArrayList<String>();
 
     public static void main(String[] args){
         
@@ -71,7 +72,7 @@ public class InventoryTesting {
         }*/
     }
 
-    private static void addDataToDB( String inputArray[]) {
+    private static void addDataToDB(ArrayList<String> inputArray) {
 
         //another option for batch insert
         //https://stackoverflow.com/questions/4355046/java-insert-multiple-rows-into-mysql-with-preparedstatement
@@ -99,7 +100,7 @@ public class InventoryTesting {
 
         String insertQueryStatement = "INSERT INTO invlist VALUES (?,?,?)";
 
-        for (int i=0; i+2<inputArray.length; i=i+3) {
+        for (int i=0; i+2<inputArraysize(); i=i+3) {
             if (i>0){                                       //doesn't add to string on first run
                 insertQueryStatement = insertQueryStatement.concat(", (?,?,?)");
             }
@@ -107,7 +108,7 @@ public class InventoryTesting {
             //myPreparedStat setup goes here, same as above
             System.out.println(insertQueryStatement);
 
-            log(inputArray[i+1] + " added successfully.");
+            log(inputArray.get(i+1) + " added successfully.");
         }
     }
 
@@ -170,24 +171,24 @@ public class InventoryTesting {
     add all items to DB at once
      */
     
-    private static String[] userInput(){
+    private static ArrayList<String> userInput(){
         Scanner s = new Scanner(System.in);
         boolean moreItems=true;
 
         for (int i=0; moreItems; i=i+3) {
             System.out.println("Enter UPC:");
-            inputArray[i] = String.valueOf(s.nextInt());
+            inputArray.add(String.valueOf(s.nextInt()));
             System.out.println("Enter Item Name:");
-            inputArray[i+1] = s.nextLine();
+            inputArray.add(s.nextLine());
             System.out.println("Enter amount:");
-            inputArray[i+2] = String.valueOf(s.nextInt());
-            
+            inputArray.add(String.valueOf(s.nextInt()));
+
             System.out.println("Do you have more items to add? y/n");
             if(s.nextLine()=="n"){
                 moreItems=false;
             }
         }
-        
+
         return inputArray;
     }
 }
