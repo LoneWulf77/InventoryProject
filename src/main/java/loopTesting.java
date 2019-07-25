@@ -178,10 +178,12 @@ public class InventoryTesting {
         for (int i=0; moreItems; i=i+3) {
             System.out.println("Enter UPC:");
             inputArray.add(String.valueOf(s.nextInt()));
+            s.nextLine();
             System.out.println("Enter Item Name:");
             inputArray.add(s.nextLine());
             System.out.println("Enter amount:");
             inputArray.add(String.valueOf(s.nextInt()));
+            s.nextLine();
 
             System.out.println("Do you have more items to add? y/n");
             if(s.nextLine()=="n"){
