@@ -1,4 +1,5 @@
 import java.sql.*;
+import java.util.Scanner;
 
 
 public class InventoryTesting {
@@ -9,6 +10,9 @@ public class InventoryTesting {
     static String inputArray[] = new String[9];
 
     public static void main(String[] args){
+        
+        //ask user for items to add
+        userInput();
 
         try {
             log("------ Tut on making JDBC connection to MySQL DB ------");
@@ -165,4 +169,25 @@ public class InventoryTesting {
     ask if more items (y/n)
     add all items to DB at once
      */
+    
+    private static String[] userInput(){
+        Scanner s = new Scanner(System.in);
+        boolean moreItems=true;
+
+        for (int i=0; moreItems; i=i+3) {
+            System.out.println("Enter UPC:");
+            inputArray[i] = String.valueOf(s.nextInt());
+            System.out.println("Enter Item Name:");
+            inputArray[i+1] = s.nextLine();
+            System.out.println("Enter amount:");
+            inputArray[i+2] = String.valueOf(s.nextInt());
+            
+            System.out.println("Do you have more items to add? y/n");
+            if(s.nextLine()=="n"){
+                moreItems=false;
+            }
+        }
+        
+        return inputArray;
+    }
 }
