@@ -186,7 +186,7 @@ public class InventoryTesting {
             s.nextLine();
 
             System.out.println("Do you have more items to add? y/n");
-            if(s.nextLine()=="n"){
+            if("n".equals(s.nextLine())){
                 moreItems=false;
             }
         }
