@@ -25,7 +25,7 @@
     <show-object-properties value="true" />
     <loaded-nodes>
       <connection connection-id="6a6e81aa-30a4-476e-b006-1f6887234e39">
-        <schema name="inventory" object-types="view, procedure, table, function" />
+        <schema name="inventory" object-types="table, column, function" />
       </connection>
     </loaded-nodes>
   </component>

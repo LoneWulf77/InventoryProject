@@ -24,7 +24,7 @@ public class InventoryTesting {
 
                 if(task.equals("add")){
                     log("\n------ Adding data to DB ------");
-                    addDataToDB(inputArray=addInput());
+                    addDataToInvlistDB(inputArray=addInput());
                 }
 
                 else if(task.equals("change amount")||task.equals("change")||task.equals("amount")){
@@ -35,12 +35,12 @@ public class InventoryTesting {
 
                         if(task.equals("remove")){
                             log("\n------ Remove amount from DB ------");
-                            removeAmountFromDB(inputArray= amountInput());
+                            removeAmountFromInvlistDB(inputArray= amountInput());
                             break;
                         }
                         else if (task.equals("add")){
                             log("\n------ Adding amounts to DB ------");
-                            addAmountInDB(inputArray = amountInput());
+                            addAmountInInvlistDB(inputArray = amountInput());
                             break;
                         }
                         else if(task.equals("menu")){
@@ -54,13 +54,13 @@ public class InventoryTesting {
 
                 else if(task.equals("delete")||task.equals("delete upc")){
                     log("\n------ Delete Data(by UPC) from DB ------");
-                    removeUPCFromDB(inputArray=removeUPCInput());
+                    removeUPCFromInvlistDB(inputArray=removeUPCInput());
                 }
 
                 else if(task.equals("view")){
                     log("\n------ Get Data from DB ------");
                     log("UPC  Name  Amount");
-                    getDataFromDB();
+                    getDataFromInvlistDB();
                 }
 
                 else if(task.equals("exit")){
@@ -110,41 +110,36 @@ public class InventoryTesting {
         }
     }
 
-    private static void addDataToDB(ArrayList<String> inputArray) {
+    //add below this to database object
 
-        //another option for batch insert
-        //https://stackoverflow.com/questions/4355046/java-insert-multiple-rows-into-mysql-with-preparedstatement
-        //https://stackoverflow.com/questions/12012592/jdbc-insert-multiple-rows
+    private static void addDataToInvlistDB(ArrayList<String> inputArray) {
 
-        try {
-            String insertQueryStatement = "INSERT INTO invlist VALUES (?,?,?)";
-            myPreparedStat = myConnect.prepareStatement(insertQueryStatement);
+        try{
+            String mergeQueryStatement = "INSERT INTO invlist VALUES (?,?,?) ON DUPLICATE KEY UPDATE amount = amount + ?";
+
+            myPreparedStat = myConnect.prepareStatement(mergeQueryStatement);
 
             for (int i=0; i+2<inputArray.size(); i=i+3) {
-
-                //check if current item already exist
-                //if exists, update amount by +inputArray.get(i+2)
-                //skip current iteration of for loop
 
                 myPreparedStat.setInt(1, Integer.parseInt(inputArray.get(i)));
                 myPreparedStat.setString(2, inputArray.get(i+1));
                 myPreparedStat.setInt(3, Integer.parseInt(inputArray.get(i+2)));
+                myPreparedStat.setInt(4, Integer.parseInt(inputArray.get(i+2)));
 
                 //add to batch
                 myPreparedStat.addBatch();
-                log(inputArray.get(i+1) + " added to batch successfully.");
+                log("UPC: " + inputArray.get(i) + " added to batch successfully.");
             }
 
             int[] inserted = myPreparedStat.executeBatch();
             log("Batch executed. "+ inserted.length + " records added to database.");
 
-
-        } catch (SQLException e) {
+        } catch(SQLException e){
             e.printStackTrace();
         }
     }
 
-    private static void getDataFromDB() {
+    private static void getDataFromInvlistDB() {
         try{
             String getQueryStatement = "SELECT * FROM invlist";
 
@@ -168,7 +163,7 @@ public class InventoryTesting {
         }
     }
 
-    private static void removeUPCFromDB(ArrayList<String> inputArray) {
+    private static void removeUPCFromInvlistDB(ArrayList<String> inputArray) {
         try{
             String getQueryStatement = "DELETE FROM invlist WHERE UPC=(?)";
             myPreparedStat = myConnect.prepareStatement(getQueryStatement);
@@ -189,30 +184,34 @@ public class InventoryTesting {
         }
     }
 
-    private static void removeAmountFromDB(ArrayList<String> inputArray) {
-        subtractAmountInDB(inputArray);
+    private static void removeAmountFromInvlistDB(ArrayList<String> inputArray) {
+        subtractAmountInInvlistDB(inputArray);
 
         try{
-            myPreparedStat = myConnect.prepareStatement("SELECT COUNT(amount) AS total FROM invlist WHERE amount<=0");
+            String getQueryStatement = "SELECT COUNT(amount) AS total FROM invlist WHERE amount<=?";
+            myPreparedStat = myConnect.prepareStatement(getQueryStatement);
+            myPreparedStat.setInt(1,0);
 
             ResultSet rs = myPreparedStat.executeQuery();
-
-            int zeroedItems = rs.getInt("total");
-            log(zeroedItems + " records removed for having 0 quantity.");
+            rs.next();
+            int count = rs.getInt("total");
+            log(count + " records removed for having 0 quantity.");
 
         } catch(SQLException e){
             e.printStackTrace();
         }
 
         try{
-            myPreparedStat = myConnect.prepareStatement("DELETE FROM invlist WHERE amount<=0");
-            myPreparedStat.executeQuery();
+            String getQueryStatement = "DELETE FROM invlist WHERE amount<=?";
+            myPreparedStat = myConnect.prepareStatement(getQueryStatement);
+            myPreparedStat.setInt(1,0);
+            myPreparedStat.executeUpdate();
         } catch (SQLException e){
             e.printStackTrace();
         }
     }
 
-    private static void subtractAmountInDB(ArrayList<String> inputArray){
+    private static void subtractAmountInInvlistDB(ArrayList<String> inputArray){
         try{
             String getQueryStatement = "UPDATE invlist SET amount=amount-? WHERE upc=?";
             myPreparedStat = myConnect.prepareStatement(getQueryStatement);
@@ -234,7 +233,7 @@ public class InventoryTesting {
         }
     }
 
-    private static void addAmountInDB(ArrayList<String> inputArray){
+    private static void addAmountInInvlistDB(ArrayList<String> inputArray){
         try{
             String getQueryStatement = "UPDATE invlist SET amount=amount+? WHERE upc=?";
             myPreparedStat = myConnect.prepareStatement(getQueryStatement);
@@ -256,6 +255,8 @@ public class InventoryTesting {
         }
     }
 
+    //end add to database object*/
+
     private static void log(String string) {
         System.out.println(string);
     }
@@ -270,12 +271,16 @@ public class InventoryTesting {
 
         while (true){
             System.out.println("Enter UPC:");
-            inputArray.add(String.valueOf(s.nextInt()));
+            if(s.hasNextInt()){
+                inputArray.add(String.valueOf(s.nextInt()));
+            }
             s.nextLine();
             System.out.println("Enter Item Name:");
             inputArray.add(s.nextLine());
             System.out.println("Enter amount:");
-            inputArray.add(String.valueOf(s.nextInt()));
+            if(s.hasNextInt()) {
+                inputArray.add(String.valueOf(s.nextInt()));
+            }
             s.nextLine();
 
             System.out.println("Do you have more items to add? y/n");
@@ -292,10 +297,14 @@ public class InventoryTesting {
 
         while (true){
             System.out.println("Enter UPC:");
-            inputArray.add(String.valueOf(s.nextInt()));
+            if(s.hasNextInt()) {
+                inputArray.add(String.valueOf(s.nextInt()));
+            }
             s.nextLine();
             System.out.println("Enter amount:");
-            inputArray.add(String.valueOf(s.nextInt()));
+            if(s.hasNextInt()) {
+                inputArray.add(String.valueOf(s.nextInt()));
+            }
             s.nextLine();
 
             System.out.println("Do you have more items to change? y/n");
@@ -312,7 +321,9 @@ public class InventoryTesting {
 
         while (true){
             System.out.println("Enter UPC:");
-            inputArray.add(String.valueOf(s.nextInt()));
+            if(s.hasNextInt()) {
+                inputArray.add(String.valueOf(s.nextInt()));
+            }
             s.nextLine();
 
             System.out.println("Do you have more items to remove? y/n");
