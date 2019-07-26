@@ -18,6 +18,7 @@ public class InventoryTesting {
 
             while (true){
                 System.out.println();
+                System.out.println("What would you like to do? Add/Change Amount/Delete UPC/View/Exit");
                 String task = userInput();
                 inputArray.clear();
 
@@ -27,10 +28,11 @@ public class InventoryTesting {
                 }
 
                 else if(task.equals("change amount")||task.equals("change")||task.equals("amounnt")){
-                    System.out.println("Do you want to add or remove items?");
-                    task = userInput();
 
                     while (true) {
+                        System.out.println("Do you want to add or remove items?");
+                        task = userInput();
+
                         if(task.equals("remove")){
                             log("\n------ Remove amount from DB ------");
                             removeAmountFromDB(inputArray= amountInput());
@@ -260,7 +262,6 @@ public class InventoryTesting {
 
     private static String userInput(){
         Scanner s = new Scanner(System.in);
-        System.out.println("What would you like to do? Add/Change Amount/Delete UPC/View/Exit");
         return s.nextLine().toLowerCase();
     } //main menu options
 
