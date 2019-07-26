@@ -198,7 +198,7 @@ public class InventoryTesting {
             ResultSet rs = myPreparedStat.executeQuery();
 
             int zeroedItems = rs.getInt("total");
-            log(zeroedItems + " records removed.");
+            log(zeroedItems + " records removed for having 0 quantity.");
 
         } catch(SQLException e){
             e.printStackTrace();
