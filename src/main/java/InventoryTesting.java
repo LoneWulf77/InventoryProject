@@ -27,7 +27,7 @@ public class InventoryTesting {
                     addDataToDB(inputArray=addInput());
                 }
 
-                else if(task.equals("change amount")||task.equals("change")||task.equals("amounnt")){
+                else if(task.equals("change amount")||task.equals("change")||task.equals("amount")){
 
                     while (true) {
                         System.out.println("Do you want to add or remove items?");
