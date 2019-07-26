@@ -2,11 +2,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-public class Database {
-    private String database;
+public class Table {
+    private String table;
 
-    public Database(String database) {
-        this.database = database;
+    public Table(String table) {
+        this.table = table;
     }
 
     private static void addDataToDB(ArrayList<String> inputArray) {
