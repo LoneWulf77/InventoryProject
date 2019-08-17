@@ -1,3 +1,11 @@
+/*
+hard coded test with adding, viewing, and removing items from database
+
+obsolete code
+
+use InventoryTesting.java
+ */
+
 import java.sql.*;
 
 

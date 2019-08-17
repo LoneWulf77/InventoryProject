@@ -1,3 +1,9 @@
+/*
+Potential code to create a database object for each database being used
+
+not currently implemented, needs to be commented out for other code to compile and run
+ */
+/*
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -152,3 +158,4 @@ public class Database {
         }
     }
 }
+*/
