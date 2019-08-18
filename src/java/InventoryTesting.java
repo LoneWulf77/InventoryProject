@@ -1,3 +1,7 @@
+/*
+Current main java back-end.
+ */
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -13,7 +17,7 @@ public class InventoryTesting {
     public static void main(String[] args){
 
         try {
-            log("------ Tut on making JDBC connection to MySQL DB ------");
+            log("------ Making JDBC connection to MySQL DB ------");
             makeJDBCConnection();
 
             while (true){
@@ -72,8 +76,12 @@ public class InventoryTesting {
                 }
             }
 
-            myPreparedStat.close();
-            myConnect.close();
+            if (myPreparedStat != null) { //allows program to end properly still if nothing was ever created
+                myPreparedStat.close();
+            }
+            if (myConnect != null) { //allows program to end properly still if nothing was ever created
+                myConnect.close();
+            }
 
 
         } catch (SQLException e) {

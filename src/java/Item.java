@@ -1,3 +1,9 @@
+/*
+Potential code to create an Item object for each upc entered
+
+not currently implemented
+ */
+
 public class Item {
     private int UPC;
     private String Name;
