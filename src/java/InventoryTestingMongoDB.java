@@ -6,11 +6,15 @@ Work in progress, not implemented.
 Currently needs to be commented out for main program to compile and run properly. Use InventoryTesting.java to run program.
  */
 
-/*
+
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
+import com.mongodb.MongoException;
+import com.mongodb.client.FindIterable;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
+import org.bson.Document;
 
-import java.net.UnknownHostException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -19,7 +23,8 @@ import java.util.Scanner;
 public class InventoryTestingMongoDB {
 
     static MongoClient myConnect = null;
-    static PreparedStatement myPreparedStat = null;
+    static MongoDatabase inventory = null;
+    static MongoCollection<Document> invlist = null;
 
     static ArrayList<String> inputArray = new ArrayList<String>();
 
@@ -29,7 +34,9 @@ public class InventoryTestingMongoDB {
             log("------ Making connection to MongoDB ------");
             makeMongoDBConnection();
 
-            while (true){
+            getDataFromInvlistDB();
+
+            /*while (true){
                 System.out.println();
                 System.out.println("What would you like to do? Add/Change Amount/Delete UPC/View/Exit");
                 String task = userInput();
@@ -83,17 +90,14 @@ public class InventoryTestingMongoDB {
                 else{
                     System.out.println("Please enter a valid action.");
                 }
-            }
+            }*/
 
-            if (myPreparedStat != null) { //allows program to end properly still if nothing was ever created
-                myPreparedStat.close();
-            }
             if (myConnect != null) { //allows program to end properly still if nothing was ever created
                 myConnect.close();
             }
 
 
-        } catch (SQLException e) {
+        } catch (MongoException e) {
 
             e.printStackTrace();
         }
@@ -102,8 +106,12 @@ public class InventoryTestingMongoDB {
     private static void makeMongoDBConnection() {
 
         try{
+            MongoClientURI uri = new MongoClientURI(
+                    "mongodb+srv://LoneWulf77:Ookami99@inventoryprojectcluster-x1k5v.mongodb.net/test?retryWrites=true&w=majority\n");
 
-            myConnect = new MongoClient(new MongoClientURI("mongodb://")); //MongoDB address
+            myConnect = new MongoClient(uri);
+            inventory = myConnect.getDatabase("Inventory"); //MongoDB address
+            invlist = inventory.getCollection("invlist");
 
             if(myConnect != null){
                 log("Connection Successful.");
@@ -111,15 +119,16 @@ public class InventoryTestingMongoDB {
                 log("Failed to connect.");
             }
 
-        } catch (UnknownHostException e){
+        } catch (MongoException e){
             log("MongoDB connection failed.");
             e.printStackTrace();
             return;
         }
+
     }
 
     //add below this to database object
-
+/*
     private static void addDataToInvlistDB(ArrayList<String> inputArray) {
 
         try{
@@ -146,31 +155,21 @@ public class InventoryTestingMongoDB {
             e.printStackTrace();
         }
     }
-
+*/
     private static void getDataFromInvlistDB() {
         try{
-            String getQueryStatement = "SELECT * FROM invlist";
 
-            myPreparedStat = myConnect.prepareStatement(getQueryStatement);
-
-            //Execute query, get java ResultSet
-            ResultSet rs = myPreparedStat.executeQuery();
-
-            //Iterate through java ResultSet
-            while (rs.next()) {
-                int upc =rs.getInt("UPC");
-                String itemName = rs.getString("Name");
-                int amount = rs.getInt("amount");
-
-                //Print results
-                System.out.format("%s, %s, %s\n", upc, itemName, amount);
+            FindIterable<Document> documents = invlist.find();
+            for(Document document : documents) {
+                System.out.println(document.toString());
             }
 
-        } catch (SQLException e) {
+        } catch (MongoException e) {
+            log("Error printing inventory contents.");
             e.printStackTrace();
         }
     }
-
+/*
     private static void removeUPCFromInvlistDB(ArrayList<String> inputArray) {
         try{
             String getQueryStatement = "DELETE FROM invlist WHERE UPC=(?)";
@@ -264,11 +263,11 @@ public class InventoryTestingMongoDB {
     }
 
     //end add to database object
-
+*/
     private static void log(String string) {
         System.out.println(string);
     }
-
+/*
     private static String userInput(){
         Scanner s = new Scanner(System.in);
         return s.nextLine().toLowerCase();
@@ -341,6 +340,5 @@ public class InventoryTestingMongoDB {
         }
 
         return inputArray;
-    }
+    }*/
 }
-*/
